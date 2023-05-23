@@ -42,7 +42,7 @@ def take_command():
 
 def get_latest_news():
     api_key = '1a79b9c9c11c43ccac03f1b93099be80' # insira sua chave de API aqui
-    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+    url = f"https://newsapi.org/v2/top-headlines?country=br&apiKey={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
@@ -164,10 +164,12 @@ def run_ava():
 def command_factory() -> commands.CommandRunner:
     return commands.CommandRunner(
         commands=[
-            # commands.Movie(get_movie=get_random_movie),
+            commands.Movie(get_movie=get_random_movie),
             commands.Joke(),
             commands.Time(),
-            # commands.News(get_news=get_latest_news),
+            commands.News(get_news=get_latest_news),
+            commands.Temperature("London"),
+            commands.Curiosity()
         ],
         take_command=take_command
     )
@@ -176,5 +178,5 @@ while True:
     runner = command_factory()
     if not runner.run():
         break
-    print("oi")
+    # print("oi")
     

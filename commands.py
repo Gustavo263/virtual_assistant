@@ -4,6 +4,8 @@ import datetime
 import pyttsx3
 import wikipedia
 import requests
+import json
+
 
 
 class BaseTalk:
@@ -52,59 +54,76 @@ class Joke(BaseTalk):
         super().speak(joke)
 
 
-class Movie:
+class Movie(BaseTalk):
 
     def __init__(self, get_movie: GetMovie) -> None:
         self._get_movie = get_movie
+        super().__init__()
 
-    def talk(self, talk: Talk) -> None:
+    def talk(self) -> None:
         title, release_date, overview = self._get_movie()
         print(f"Depois de uma busca na web {title}, é uma boa opção para você.")
-        talk(f"After a web search {title} is a good choice for you.")
+        super().speak(f"After a web search {title} is a good choice for you.")
 
         print(f"{title} foi lançado em {release_date}")
-        talk(f"{title} was released in {release_date}")
+        super().speak(f"{title} was released in {release_date}")
 
         print(f"Ao lado está a sinopse: {overview}")
-        talk(f"Next is the synopsis: {overview}")
+        super().speak(f"Next is the synopsis: {overview}")
 
 
-class News:
+class News(BaseTalk):
 
     def __init__(self, get_news: GetNews) -> None:
         self._get_news = get_news
+        super().__init__()
     
-    def talk(self, talk: Talk) -> None:
+    def talk(self) -> None:
         title, description = self._get_news()
-        print(f"{title}: {description}")
-        talk(f"{title}: {description}")
-    
+        print(f"{title}\n {description}")
+        super().speak(f"{title} {description}")
+
+
+class Play(BaseTalk):...
 
 class Temperature(BaseTalk):
 
-    # def __init__(self, api_key:str = "") -> None:
-    #     pass
+    def __init__(self, city) -> None:
+        self._api_key = "9acf2c1ebc77ae0343bd7aee42e44304"
+        self._url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={self._api_key}&units=metric"
+        super().__init__()
 
     def get_temperature(self, city):
-        api_key = "9acf2c1ebc77ae0343bd7aee42e44304"
-        # Make API call to OpenWeatherMap
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-        response = requests.get(url)
+        response = requests.get(self._url)
         data = json.loads(response.text)
 
         # Extract temperature from API response
         temperature = data["main"]["temp"]
         return temperature
 
+    def talk(self) -> None:
+        temperature = self.get_temperature("London")
+        print(f"Londres está com {temperature}° Celsius")
+        print(f"Londres: {temperature}")
 
-    def speak(self) -> None:
-        city = text.replace("temperature ", "").strip()
-        temp = self.get_temperature(city)
-        print(f"Currently {city} is {temperature} degrees Celsius")
-        super().speak(f"Currently {city} is {temp} degrees Celsius")
+
+class Curiosity(BaseTalk):
+
+    def __init__(self) -> None:
+        self._url = "https://uselessfacts.jsph.pl/random.json?language=br"
+        super().__init__()
+
+
+    def get_curiosity(self):
+        response = requests.get(self._url)
+        data = response.json()
+        curiosity = data["text"]
+        return curiosity
 
     def talk(self) -> None:
-        self.speak()
+        curiosity = self.get_curiosity()
+        print(curiosity)
+        super().speak(curiosity)
 
 class Time(BaseTalk):
     def __init__(self) -> None:
